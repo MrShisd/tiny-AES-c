@@ -13,16 +13,18 @@
 int encrypt_file_cbc128(char *fileName, uint8_t *key ,uint8_t *iv);
 int decrypt_file_cbc128(char *fileName, uint8_t *key ,uint8_t *iv);
 
-char * encrypt_string_cbc128(const char *In, int num, uint8_t *key ,uint8_t *iv);
-char * decrypt_string_cbc128(const char *In, int num, uint8_t *key ,uint8_t *iv);
+char * encrypt_string_cbc128(const char *In, int lSIze, uint8_t *key ,uint8_t *iv);
+char * decrypt_string_cbc128(const char *In, int lSIze, uint8_t *key ,uint8_t *iv);
+
+int encrypt_InOutstring_cbc128(char *In, int lSIze, uint8_t *key ,uint8_t *iv);
 
 int get16ABoutInput(int input);
 
 // int main(void)
 // {
     // char *fileName = "1.txt";
-    // uint8_t key[] = { 0x62, 0xff, 0x7d, 0x05, 0x37, 0xa5, 0x58, 0x91, 0xa5, 0x7f, 0xd5, 0x38, 0x99, 0x5d, 0x1f, 0x59 };
-    // uint8_t iv[]  = { 0x2f, 0xf1, 0x3e, 0xe8, 0x19, 0xc3, 0xa6, 0x18, 0x04, 0x7b, 0x49, 0x1f, 0x57, 0xf7, 0xaa, 0x1c };
+    // uint8_t key[] = { 0x62, 0x3f, 0x7d, 0x05, 0x37, 0xa5, 0x58, 0x91, 0xa5, 0x7f, 0xd5, 0x38, 0x99, 0x5d, 0x1f, 0x59 };
+    // uint8_t iv[]  = { 0x2f, 0xa1, 0x3e, 0xe8, 0x19, 0xc3, 0xa6, 0x18, 0x04, 0x7b, 0x49, 0x1f, 0x57, 0xf7, 0xaa, 0x1c };
     // // encrypt_file_cbc128(fileName,key,iv);
 //     decrypt_file_cbc128(fileName,key,iv);
 
@@ -36,6 +38,21 @@ int get16ABoutInput(int input)
         return input + 16 -(input % 16);
     }
     return input;
+}
+
+int encrypt_InOutstring_cbc128(char *In, int lSIze, uint8_t *key ,uint8_t *iv)
+{
+    int num = get16ABoutInput(lSIze/sizeof(uint8_t));
+    uint8_t *InTmp = (uint8_t *)malloc(sizeof(uint8_t)*num);
+    memset(InTmp,' ',sizeof(uint8_t)*num);
+    memcpy(InTmp,In,lSIze);
+    struct AES_ctx ctx;
+    AES_init_ctx_iv(&ctx, key, iv);
+    AES_CBC_encrypt_buffer(&ctx, InTmp, num);
+
+    memcpy(In,InTmp,num);
+
+    return 0;   //may be problem not free
 }
 
 char * encrypt_string_cbc128(const char *In, int lSIze, uint8_t *key ,uint8_t *iv)
